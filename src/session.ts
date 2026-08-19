@@ -100,13 +100,13 @@ export class SshTerminalSession {
         this.trimmedChars += cut + 1
       }
     }
-    for (const listener of [...this.dataListeners]) listener()
+    for (const listener of this.dataListeners) listener()
   }
 
   private handleClose(): void {
     if (this.status.kind === 'exited') return
     this.status = { kind: 'exited', exitCode: null, signal: null }
-    for (const listener of [...this.closeListeners]) listener()
+    for (const listener of this.closeListeners) listener()
   }
 
   private sliceFrom(mark: number): { text: string; truncated: boolean } {
@@ -256,7 +256,6 @@ export class SshTerminalSession {
     const wasRunning = this.status.kind === 'running' && !this.closed
     this.closed = true
     if (wasRunning) {
-      this.shell.close()
       await new Promise<void>((resolve) => {
         const timer = setTimeout(() => {
           this.closeListeners.delete(onClosed)
@@ -267,6 +266,7 @@ export class SshTerminalSession {
           resolve()
         }
         this.closeListeners.add(onClosed)
+        this.shell.close()
       })
     }
     this.connection.close()
