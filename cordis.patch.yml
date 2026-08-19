@@ -1,0 +1,12 @@
+- insert:
+    - id: ssh-terminal
+      name: dsh-ssh-terminal
+      config:
+        allowlist: []
+        maxSessions: 8
+        defaultPort: 22
+        connectTimeoutMs: 15000
+        idleMs: 800
+        sendTimeoutMs: 30000
+        maxScrollbackBytes: 1048576
+        maxResultBytes: 131072
