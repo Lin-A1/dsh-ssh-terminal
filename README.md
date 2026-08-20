@@ -2,7 +2,7 @@
 
 Persistent SSH remote terminal plugin for [deepseek-harness](https://github.com/deepseek-ai/deepseek-harness). Keeps one `ssh2` shell channel alive across multiple model tool calls — `cwd` / env / REPL state persists — while the **target host is chosen dynamically at call time** and gated by an optional deployment allowlist.
 
-> 归类建议：`plugins/terminal` 或 `plugins/shell`。当前仓库独立开发，验证通过 `dsh plugin add ./path` 后再以 submodule 接入 `dsh-hub`。
+> 归类：已作为 submodule 收录于 `dsh-hub/plugins/terminal/dsh-ssh-terminal`（按能力归 `plugins/terminal/`，与上游 `packages/terminal` 对齐）。独立仓库 `github.com/Lin-A1/dsh-ssh-terminal`。
 
 ## 适用版本
 
@@ -38,6 +38,8 @@ dsh plugin --profile <name> add dsh-ssh-terminal
 ```
 
 `prepare` 会在 GitHub 安装时自动 `pnpm run build` 产出 `lib/`。
+
+> **ssh2 原生绑定说明（不影响功能）**：`ssh2@1.17.0` 的 `cpu-features` / `nan` 是 `optionalDependencies`，安装时用 `node-gyp` 编译，提供 AES/SHA 的硬件加速（AES-NI、SHA-NI）。在没有编译链的环境（如缺少 VS Build Tools 的 Windows、容器、CI）下，该原生模块编译会失败并打印 `gyp ERR! Failed to build optional crypto binding`——这**不会**中断安装。SSH 握手、认证、shell channel、PTY、读写等核心功能本身是纯 JS 实现，会自动回退到纯 JS 加解密，**功能与正确性完整**，仅缺少硬件加速带来的性能增益。若部署环境安装了编译链，原生加速会自动生效。安装日志里的 `cpu-features`/`ssh2` 编译失败可安全忽略。
 
 ## 配置
 
