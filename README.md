@@ -25,16 +25,16 @@ Persistent SSH remote terminal plugin for [deepseek-harness](https://github.com/
 ## 安装
 
 ```sh
-# 本地开发验证（推荐）
-dsh plugin add ./dsh-ssh-terminal --profile <name>
-
-# GitHub 安装（首次需在 $DSH_HOME/profiles/<name>/pnpm-workspace.yaml 放行构建）
-dsh plugin add github:Lin-A1/dsh-ssh-terminal --profile <name>
+# GitHub 安装（推荐）；首次需在 $DSH_HOME/profiles/<name>/pnpm-workspace.yaml 放行构建
+dsh plugin --profile <name> add github:Lin-A1/dsh-ssh-terminal
 # 可信安装建议 pin commit：
-dsh plugin add github:Lin-A1/dsh-ssh-terminal#<sha> --profile <name>
+dsh plugin --profile <name> add github:Lin-A1/dsh-ssh-terminal#<sha>
+
+# 本地开发验证
+dsh plugin --profile <name> add ./dsh-ssh-terminal
 
 # npm（若已发布带 lib/ 的包则无需 allowBuilds）
-dsh plugin add dsh-ssh-terminal --profile <name>
+dsh plugin --profile <name> add dsh-ssh-terminal
 ```
 
 `prepare` 会在 GitHub 安装时自动 `pnpm run build` 产出 `lib/`。
