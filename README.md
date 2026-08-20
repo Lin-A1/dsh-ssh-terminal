@@ -6,8 +6,9 @@ Persistent SSH remote terminal plugin for [deepseek-harness](https://github.com/
 
 ## 适用版本
 
-- 基于 `deepseek-harness` **0.1.0-rc.7** (`99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`, tag `dsh-v0.1.0-rc.7`) 开发与验证。
-- 要求 Node `>=22`、`@deepseek-ai/cordis ^4.0.1`、`@deepseek-ai/dsh-tools ^0.1.0-rc.7` 与宿主单例共享（见 `package.json` peer/dev 一致性），`ssh2 ^1.17.0`、`@deepseek-ai/schemastery ^3.18.1`。
+- 基于 `deepseek-harness` **0.1.0-rc.8** (`141eb6fef83422698aef7a981029e843e8161534`, tag `dsh-v0.1.0-rc.8`) 开发与验证（rc.7 亦可用，`^0.1.0-rc.7` peer 范围覆盖）。
+- 要求 Node `>=22`、`@deepseek-ai/cordis ^4.0.1`、`@deepseek-ai/dsh-tools ^0.1.0-rc.7`（覆盖 rc.8）与宿主单例共享（见 `package.json` peer/dev 一致性），`ssh2 ^1.17.0`、`@deepseek-ai/schemastery ^3.18.1`。
+- 已在 `web` profile 实测：rc.8 下 `dsh plugin --profile web add github:Lin-A1/dsh-ssh-terminal` 安装并激活，`ssh_terminal_*` 工具随 harness 启动加载。
 - 若上游 harness 升级，需重新验证 `ssh2` 通道、哨兵协议与 `defineTool` / `ToolDefinition` 契约是否变化。
 
 ## 能力与工具
