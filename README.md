@@ -25,21 +25,39 @@ Persistent SSH remote terminal plugin for [deepseek-harness](https://github.com/
 ## 安装
 
 ```sh
-# GitHub 安装（推荐）；首次需在 $DSH_HOME/profiles/<name>/pnpm-workspace.yaml 放行构建
+# GitHub 安装（推荐）
 dsh plugin --profile <name> add github:Lin-A1/dsh-ssh-terminal
 # 可信安装建议 pin commit：
 dsh plugin --profile <name> add github:Lin-A1/dsh-ssh-terminal#<sha>
 
-# 本地开发验证
+# 本地开发验证（无需 allowBuilds，prepare 仍会执行）
 dsh plugin --profile <name> add ./dsh-ssh-terminal
 
 # npm（若已发布带 lib/ 的包则无需 allowBuilds）
 dsh plugin --profile <name> add dsh-ssh-terminal
 ```
 
-`prepare` 会在 GitHub 安装时自动 `pnpm run build` 产出 `lib/`。
+GitHub 安装会拉取源码并运行 `prepare` 构建 `lib/`。pnpm ≥10 会拦截 git 依赖及部分传递依赖的构建脚本，需按 dsh/pnpm 打印的精确 `allowBuilds` key 放行后重跑，**不能直接一次装完**：
 
-> **ssh2 原生绑定说明（不影响功能）**：`ssh2@1.17.0` 的 `cpu-features` / `nan` 是 `optionalDependencies`，安装时用 `node-gyp` 编译，提供 AES/SHA 的硬件加速（AES-NI、SHA-NI）。在没有编译链的环境（如缺少 VS Build Tools 的 Windows、容器、CI）下，该原生模块编译会失败并打印 `gyp ERR! Failed to build optional crypto binding`——这**不会**中断安装。SSH 握手、认证、shell channel、PTY、读写等核心功能本身是纯 JS 实现，会自动回退到纯 JS 加解密，**功能与正确性完整**，仅缺少硬件加速带来的性能增益。若部署环境安装了编译链，原生加速会自动生效。安装日志里的 `cpu-features`/`ssh2` 编译失败可安全忽略。
+```sh
+# 1. 首次尝试 — dsh/pnpm 打印精确的 allow key：
+dsh plugin --profile <name> add github:Lin-A1/dsh-ssh-terminal
+#    ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED ... add the package to "allowBuilds"
+
+# 2. 在 profile 的 pnpm-workspace.yaml 中放行（使用 pnpm 打印的精确 key）：
+#    $DSH_HOME/profiles/<name>/pnpm-workspace.yaml:
+#    allowBuilds:
+#      dsh-ssh-terminal@https://codeload.github.com/Lin-A1/dsh-ssh-terminal/tar.gz/<sha>: true
+#      cpu-features: true
+#      ssh2: true
+
+# 3. 重跑：
+dsh plugin --profile <name> add github:Lin-A1/dsh-ssh-terminal
+```
+
+> 若 `pnpm-workspace.yaml` 已被 pnpm 预填 `cpu-features: set this to true or false` / `ssh2: set this to true or false` 占位行，请直接把它们改为 `true`，不要重复追加，否则会报 `duplicated mapping key`。变更生效需重启 harness（插件集在启动时扫描）。
+
+> **ssh2 原生绑定说明（不影响功能）**：`ssh2@1.17.0` 的 `cpu-features` / `nan` 是 `optionalDependencies`，安装时用 `node-gyp` 编译以提供 AES/SHA 硬件加速（AES-NI、SHA-NI）。即使你在 `allowBuilds` 中放行了 `cpu-features`/`ssh2`，在没有编译链的环境（如缺少 VS Build Tools 的 Windows、容器、CI）下仍会打印 `gyp ERR! Failed to build optional crypto binding`——这**不会**中断安装（pnpm 以 `Done` 结束，EXIT:0），SSH 握手、认证、shell channel、PTY、读写等核心功能是纯 JS 实现，会自动回退到纯 JS 加解密，**功能与正确性完整**，仅缺少硬件加速。若部署环境有编译链，原生加速会自动生效。未在 `allowBuilds` 放行 `cpu-features`/`ssh2` 时，pnpm 会以 `ERR_PNPM_IGNORED_BUILDS` 中断安装——此时按上一步把它们设为 `true` 后重跑即可，编译失败仍可安全忽略。
 
 ## 配置
 
